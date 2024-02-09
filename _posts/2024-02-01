@@ -50,5 +50,5 @@ BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc
 
 
 ## References:
-1.[Paper](https://arxiv.org/abs/1810.04805)
+1[Paper](https://arxiv.org/abs/1810.04805)
 2.[Pytorch loss backward and optimizer](https://stackoverflow.com/questions/53975717/pytorch-connection-between-loss-backward-and-optimizer-step)
