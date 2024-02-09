@@ -1,8 +1,9 @@
 ---
-title:  "1. Transformers, BERT, Q&A"
+title:  "Transformers, BERT, Q&A"
 mathjax: true
 layout: post
-categories: media
+categories: 
+      - Transformers
 ---
 
 ## BERT
@@ -42,7 +43,11 @@ BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc
 *  Skip connection => keep gradient smooth => backprop
 *   Layer Norm => mean = 0 , std = 1 => duy  trì một phân phối nhất quán => encourage convergence of parameter values + better perf 
 
+## Q&A:
+1. Nếu vậy số lượng heads càng nhiều thì sẽ tìm được càng nhiều sự tương quan?
+
 ## Code:
+https://colab.research.google.com/drive/1_OnhkDzFyhW7bkc0zbBcIy0EV3clPOMk?usp=sharing
 
 ## References:
 https://arxiv.org/abs/1810.04805
