@@ -1,25 +1,50 @@
 ---
-title: "Welcome to Jekyll"
+title:  "1. Transformers, BERT, Q&A"
+mathjax: true
 layout: post
+categories: media
 ---
 
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+## BERT
+
+BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc biệt encoder của transformers
 
 
-To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+## Thành phần trong BERT
 
-Jekyll also offers powerful support for code snippets:
+### Embedding: 
+* Từ được lấy và đưa về số chiều thấp. Làm sao để embed từ one-hot representation thành lower dimensional space? => cần có embedding matrix.
+* One-hot representation sẽ đại diện cho từ xuất hiện trong câu, embedding matrix sẽ có số chiều là (vocab_size, embed_dim) => nhân ma trận ta được vector biểu diễn của một từ. 
+*	Embedding_size của BERT là 768.
+![embedding](https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/5a0f39e9-62d4-4d32-870f-11694be59511)
+*	Dùng nn.Embedding layer: cách hoạt động mô tả tương tự ở trên, dung word_idx sao đó ánh xạ thành số chiều (vocab_size, embed_size)
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+### Positional Encoding: 
+*	Cơ chế chú ý đa đầu góp phần speed- up training times => no any sense if position for each word. => positional embeddings => sinusoid
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+###	Attention Block:
+![image](https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/4e53e03e-a2c6-4f56-8da3-98296664f389)
+*	Phép nhân ma trận trả về sự tương quan => QK.T sẽ cho biết Q cần attention bao nhiêu đối với K.T (Nếu là self attention thì có thể hiểu là mỗi từ sẽ có tương quan-ảnh hưởng-chú ý như nào với nhau)
+*	Softmax => probability distribution, quá trình backprop ít bị ảnh hưởng.
+*	Sprt(d_k):	large_variances => kill gradients
 
-[jekyll-docs]: http://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+###          Multihead-Attention:
+*  Tại sao cần nhiều hơn một attention head?
+*   Do kết quả của hàm softmax có thể chỉ tập trung vào một phần tử duy nhất mà đánh mất việc các phần khác cũng có ý nghĩa quan trọng => cần nhiều heads => Nếu vậy số lượng heads càng nhiều thì sẽ tìm được càng nhiều sự tương quan?
+*   Solution: đồng thời nhiều heads cùng chạy => cho phép xem xét nhiều từ ngữ trước đó đồng thời khi dự đoán từ tiếp theo.
+*   Lower-dimensional embedding space:
+      ·   	d_embed: chiều của token embedding space.
+      ·   	d_k: chiều của key và query (d_embed // h)
+      ·   	d_v: chiều của value
+      ·   	h: số heads
+### Feedforward
+### Skip connection & Layer Norm
+*  Skip connection => keep gradient smooth => backprop
+*   Layer Norm => mean = 0 , std = 1 => duy  trì một phân phối nhất quán => encourage convergence of parameter values + better perf 
+
+## Code:
+
+## References:
+https://arxiv.org/abs/1810.04805
+https://stackoverflow.com/questions/53975717/pytorch-connection-between-loss-backward-and-optimizer-step
+https://discuss.pytorch.org/t/how-are-optimizer-step-and-loss-backward-related/7350
