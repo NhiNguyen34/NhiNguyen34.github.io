@@ -5,7 +5,6 @@ layout: post
 categories: 
       - Transformers
 ---
-
 ## BERT
 
 BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc biệt encoder của transformers
@@ -34,22 +33,22 @@ BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc
 *   Do kết quả của hàm softmax có thể chỉ tập trung vào một phần tử duy nhất mà đánh mất việc các phần khác cũng có ý nghĩa quan trọng => cần nhiều heads => Nếu vậy số lượng heads càng nhiều thì sẽ tìm được càng nhiều sự tương quan?
 *   Solution: đồng thời nhiều heads cùng chạy => cho phép xem xét nhiều từ ngữ trước đó đồng thời khi dự đoán từ tiếp theo.
 *   Lower-dimensional embedding space:
-      ·   	d_embed: chiều của token embedding space.
-      ·   	d_k: chiều của key và query (d_embed // h)
-      ·   	d_v: chiều của value
-      ·   	h: số heads
+       *   	d_embed: chiều của token embedding space.
+       *   	d_k: chiều của key và query (d_embed // h)
+       *   	d_v: chiều của value
+      *   	h: số heads
 ### Feedforward
 ### Skip connection & Layer Norm
 *  Skip connection => keep gradient smooth => backprop
 *   Layer Norm => mean = 0 , std = 1 => duy  trì một phân phối nhất quán => encourage convergence of parameter values + better perf 
 
+[Source Code](https://colab.research.google.com/drive/1_OnhkDzFyhW7bkc0zbBcIy0EV3clPOMk?usp=sharing)
+
+------
 ## Q&A:
 1. Nếu vậy số lượng heads càng nhiều thì sẽ tìm được càng nhiều sự tương quan?
 
-## Code:
-https://colab.research.google.com/drive/1_OnhkDzFyhW7bkc0zbBcIy0EV3clPOMk?usp=sharing
 
 ## References:
-https://arxiv.org/abs/1810.04805
-https://stackoverflow.com/questions/53975717/pytorch-connection-between-loss-backward-and-optimizer-step
-https://discuss.pytorch.org/t/how-are-optimizer-step-and-loss-backward-related/7350
+1.[Paper](https://arxiv.org/abs/1810.04805)
+2.[Pytorch loss backward and optimizer](https://stackoverflow.com/questions/53975717/pytorch-connection-between-loss-backward-and-optimizer-step)
