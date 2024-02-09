@@ -43,12 +43,11 @@ BERT -> học cách biểu diễn ngôn ngữ sử dụng transformers -> đặc
 *   Layer Norm => mean = 0 , std = 1 => duy  trì một phân phối nhất quán => encourage convergence of parameter values + better perf 
 
 [Source Code](https://colab.research.google.com/drive/1_OnhkDzFyhW7bkc0zbBcIy0EV3clPOMk?usp=sharing)
+[Paper](https://arxiv.org/abs/1810.04805)
 
 ------
 ## Q&A:
 1. Nếu vậy số lượng heads càng nhiều thì sẽ tìm được càng nhiều sự tương quan?
 
 
-## References:
-1[Paper](https://arxiv.org/abs/1810.04805)
-2.[Pytorch loss backward and optimizer](https://stackoverflow.com/questions/53975717/pytorch-connection-between-loss-backward-and-optimizer-step)
+
