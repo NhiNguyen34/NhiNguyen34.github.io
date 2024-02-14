@@ -1,5 +1,5 @@
 ---
-title:  "Dependency Parsing, Q&A"
+title:  "Dependency Parsing"
 mathjax: true
 layout: post
 categories: 
@@ -21,11 +21,11 @@ categories:
 
 
 ### HAI QUAN ĐIỂM VỀ CẤU TRÚC NGÔN NGỮ:
-○ Constituency = phrase structure grammars = context-free grammars
-      § Constituency: cấu trúc ngôn ngữ hiểu dựa trên thành phần tạo thành
-      § CFGs: Context-free grammars - Cấu trúc ngữ pháp không dựa trên ngữ cảnh
-      § Words >> phrase >> bigger phrase 
-○ Dependency structure: cho thấy sự phụ thuộc của từ vào từ khác (Modified, attach to, arguments of)
+- Constituency = phrase structure grammars = context-free grammars
+      - Constituency: cấu trúc ngôn ngữ hiểu dựa trên thành phần tạo thành
+      - CFGs: Context-free grammars - Cấu trúc ngữ pháp không dựa trên ngữ cảnh
+      - Words >> phrase >> bigger phrase 
+- Dependency structure: cho thấy sự phụ thuộc của từ vào từ khác (Modified, attach to, arguments of)
 
 ## 2. Dependency Grammar and Dependency Structure
 
@@ -55,9 +55,9 @@ categories:
 	- conj: Liên kết các thành phần câu tương đương.
 	- dep: Phụ thuộc không xác định hoặc không rõ ràng.
 
-- Ví dụ:
-<img width="518" alt="image" src="https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/ea67558d-4afc-423d-b7e9-3afac0a47fae">
 
+### 3.1 Ví dụ:
+<img width="518" alt="image" src="https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/ea67558d-4afc-423d-b7e9-3afac0a47fae">
 
 - Động từ:
       - Có: động từ chính, thể hiện trạng thái sở hữu.
