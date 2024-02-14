@@ -21,11 +21,11 @@ categories:
 
 
 ### HAI QUAN ĐIỂM VỀ CẤU TRÚC NGÔN NGỮ:
-- Constituency = phrase structure grammars = context-free grammars
-      - Constituency: cấu trúc ngôn ngữ hiểu dựa trên thành phần tạo thành
-      - CFGs: Context-free grammars - Cấu trúc ngữ pháp không dựa trên ngữ cảnh
-      - Words >> phrase >> bigger phrase 
-- Dependency structure: cho thấy sự phụ thuộc của từ vào từ khác (Modified, attach to, arguments of)
+*  Constituency = phrase structure grammars = context-free grammars
+	* Constituency: cấu trúc ngôn ngữ hiểu dựa trên thành phần tạo thành
+	* CFGs: Context-free grammars - Cấu trúc ngữ pháp không dựa trên ngữ cảnh
+	* Words >> phrase >> bigger phrase 
+*  Dependency structure: cho thấy sự phụ thuộc của từ vào từ khác (Modified, attach to, arguments of)
 
 ## 2. Dependency Grammar and Dependency Structure
 
@@ -33,9 +33,9 @@ categories:
 - Mỗi câu sẽ có một ROOT. Thường chúng ta sẽ thêm một note [ROOT] để toàn bộ từ đều có sự phụ thuộc.
 ### Dependency Parsing
 - Một câu được phân tích cú pháp bằng cách mỗi từ lựa chọn từ mà nó phụ thuộc vào từ nào khác (bao gồm cả ROOT).
-- Thường có một số ràng buộc:
-      - Chỉ có một từ là phụ thuộc của ROOT.
-      - Không muốn có chu trình như A → B, B → A.
+* Thường có một số ràng buộc:
+      * Chỉ có một từ là phụ thuộc của ROOT.
+      * Không muốn có chu trình như A → B, B → A.
 
 ## 3. Notes:
 - Typed dependency structure: nhãn. Cụ thể: 
@@ -59,16 +59,12 @@ categories:
 ### 3.1 Ví dụ:
 <img width="518" alt="image" src="https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/ea67558d-4afc-423d-b7e9-3afac0a47fae">
 
-- Động từ:
-      - Có: động từ chính, thể hiện trạng thái sở hữu.
-      - In: động từ phụ, thể hiện hành động.
+
   
-- Object:
-      - Khung màu xanh dương: tân ngữ của động từ "có".
-      - Dòng chữ mắm thái squid brand 700ml màu đen trên nền trắng: tân ngữ của động từ "in".
+* Subject: Bảng hiệu
+* Động từ: Có (động từ chính) - In (động từ phụ, thể hiện hành động)
   
-- Subject:
-      - Bảng hiệu: chủ ngữ của câu.
+* Object: Khung màu xanh dương - Dòng chữ mắm thái squid brand 700ml màu đen trên nền trắng
   
 - Thống kê:
 	- Số lượng từ: 20
