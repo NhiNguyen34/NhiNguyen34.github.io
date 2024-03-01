@@ -50,10 +50,11 @@ categories:
 #### Linear Classifier and Final Softmax for Output Probabilities
 * Encoder cũng có thể được xếp chồng với N lớp, mỗi lớp nhận đầu vào từ decoder và các lớp encoder trước đó. Bằng cách xếp chồng các lớp, mô hình có thể học được cách trích xuất và tập trung vào các kết hợp khác nhau của sự chú ý từ các đầu chú ý của nó, có thể tăng cường hiệu suất dự đoán.
 <img width="260" alt="image" src="https://github.com/NhiNguyen34/NhiNguyen34.github.io/assets/118429842/50c282b6-c6ef-4b19-a1c4-51471a2fddeb">
+
 #### Training & Inference
 * Training: Truyền câu grouth-truth vào decoder. Tính loss giữa output và grout-truth
 * Inference: Truyền output trước đó vào decoder để dự đoán từ tiếp theo.
-* 
+  
 ## Q&A:
 1. Tại sao chiến lược optimization là tăng ở 4000 epoch đầu, và giảm dần về sau?
 
