@@ -203,12 +203,12 @@ public void setup(Context context) throws IOException, InterruptedException
  {
 		String record = value.toString().trim();
 		String[] parts = record.split(",");
-		
+		//
 		String gametype = parts[4];
 		String id = parts[2];
 		String name = userMap.get(Integer.parseInt(id));
 		String amount = parts[3];
-		
+		//
 		context.write(new Text(gametype), new Text(name + " " + amount));
  }
  }
@@ -219,11 +219,11 @@ public void setup(Context context) throws IOException, InterruptedException
 			 throws IOException, InterruptedException 
 			 {
 				 double total = 0.0;
-				 
+				 //
 				 String IDlist = "";
 				 for (Text t : values) {
 					 String[] parts = t.toString().trim().split(" ");
-					 
+					 //
 					 total += Float.parseFloat(parts[1]);
 					 IDlist += parts[0] + ",";
 				 }
@@ -244,7 +244,7 @@ public void setup(Context context) throws IOException, InterruptedException
   
  
  try {
-	  
+	  //
      job.addCacheFile(new URI("hdfs://localhost:8020/mycache/cust.txt"));
  }
  catch (Exception e) {
