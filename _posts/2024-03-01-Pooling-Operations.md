@@ -73,3 +73,189 @@ categories: media
 00000057,12-20-2011,4000003,178.20,Outdoor Recreation,Skating,San Jose,California,credit
 00000058,12-29-2011,4000002,194.86,Water Sports,Windsurfing,Oklahoma City,Oklahoma,credit
 00000059,11-07-2011,4000001,021.43,Winter Sports,Snowboarding,Philadelphia,Pennsylvania,cash
+
+
+
+
+
+--------------
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+ 
+ public class ReduceJoin {
+ public static class CustsMapper extends Mapper <Object, Text, Text, Text>
+ {
+ public void map(Object key, Text value, Context context)
+ throws IOException, InterruptedException 
+ {
+ String record = value.toString();
+ String[] parts = record.split(",");
+ context.write(new Text(parts[0]), new Text("cust   " + parts[1]));
+ }
+ }
+ 
+ public static class TxnsMapper extends Mapper <Object, Text, Text, Text>
+ {
+ public void map(Object key, Text value, Context context) 
+ throws IOException, InterruptedException 
+ {
+ String record = value.toString();
+ String[] parts = record.split(",");
+ context.write(new Text(parts[2]), new Text("tnxn   " + parts[3]));
+ }
+ }
+ 
+ public static class ReduceJoinReducer extends Reducer <Text, Text, Text, Text>
+ {
+ public void reduce(Text key, Iterable<Text> values, Context context)
+ throws IOException, InterruptedException 
+ {
+ String name = "";
+ double total = 0.0;
+ int count = 0;
+ for (Text t : values) 
+ { 
+ String parts[] = t.toString().split("   ");
+ if (parts[0].equals("tnxn")) 
+ {
+ count++;
+ total += Float.parseFloat(parts[1]);
+ } 
+ else if (parts[0].equals("cust")) 
+ {
+ name = parts[1];
+ }
+ }
+ String str = String.format("%d %f", count, total);
+ context.write(new Text(name), new Text(str));
+ }
+ }
+ 
+ public static void main(String[] args) throws Exception {
+ Configuration conf = new Configuration();
+ Job job = new Job(conf, "Reduce-side join");
+ job.setJarByClass(ReduceJoin.class);
+ job.setReducerClass(ReduceJoinReducer.class);
+ job.setOutputKeyClass(Text.class);
+ job.setOutputValueClass(Text.class);
+  
+ MultipleInputs.addInputPath(job, new Path(args[0]),TextInputFormat.class, CustsMapper.class);
+ MultipleInputs.addInputPath(job, new Path(args[1]),TextInputFormat.class, TxnsMapper.class);
+ Path outputPath = new Path(args[2]);
+  
+ FileOutputFormat.setOutputPath(job, outputPath);
+ outputPath.getFileSystem(conf).delete(outputPath);
+ System.exit(job.waitForCompletion(true) ? 0 : 1);
+ }
+ }
+
+
+
+ ----------------
+ import java.io.*;
+import java.util.*;
+import java.net.URI;
+  
+
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+ 
+ public class Transanalysis1 {
+ 
+
+ public static class TransMapper extends Mapper <Object, Text, Text, Text>
+ {
+	 // user map to keep the userId-userName
+	 private Map<Integer, String> userMap = new HashMap<>();
+	 
+public void setup(Context context) throws IOException, InterruptedException
+{	
+	  try (BufferedReader br = new BufferedReader(new FileReader("cust.txt"))) {
+		   String line;
+		   while ((line = br.readLine()) != null) {
+		    String columns[] = line.split(",");
+			//String id = 
+			//String name = 
+		    userMap.put(Integer.parseInt(columns[0]), columns[1]);
+		   }
+		  } catch (IOException e) {
+		   e.printStackTrace();
+		  }
+}
+
+
+ public void map(Object key, Text value, Context context) 
+ throws IOException, InterruptedException 
+ {
+		String record = value.toString().trim();
+		String[] parts = record.split(",");
+		
+		String gametype = parts[4];
+		String id = parts[2];
+		String name = userMap.get(Integer.parseInt(id));
+		String amount = parts[3];
+		
+		context.write(new Text(gametype), new Text(name + " " + amount));
+ }
+ }
+ 
+ public static class TransReducer extends Reducer <Text, Text, Text, Text>
+ {
+	 public void reduce(Text key, Iterable<Text> values, Context context)
+			 throws IOException, InterruptedException 
+			 {
+				 double total = 0.0;
+				 
+				 String IDlist = "";
+				 for (Text t : values) {
+					 String[] parts = t.toString().trim().split(" ");
+					 
+					 total += Float.parseFloat(parts[1]);
+					 IDlist += parts[0] + ",";
+				 }
+				 context.write(key, new Text("["+IDlist+"]" + "  " + Double.toString(total)));
+			 }
+ }
+ 
+ public static void main(String[] args) throws Exception {
+ Configuration conf = new Configuration();
+ Job job = new Job(conf, "Mapside Join");
+ job.setJarByClass(Transanalysis1.class);
+ job.setMapperClass(TransMapper.class);
+ job.setReducerClass(TransReducer.class);
+ job.setOutputKeyClass(Text.class);
+ job.setOutputValueClass(Text.class);
+ // Setting reducer to zero
+// job.setNumReduceTasks(0);
+  
+ 
+ try {
+	  
+     job.addCacheFile(new URI("hdfs://localhost:8020/mycache/cust.txt"));
+ }
+ catch (Exception e) {
+     System.out.println("File Not Added");
+     System.exit(1);
+ }
+ 
+ FileInputFormat.addInputPath(job, new Path(args[0]));
+ FileOutputFormat.setOutputPath(job, new Path(args[1]));
+ System.exit(job.waitForCompletion(true) ? 0 : 1);
+ }
+ }
