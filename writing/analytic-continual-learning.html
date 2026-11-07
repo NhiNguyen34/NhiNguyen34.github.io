@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytic Continual Learning, from scratch — Nguyen Ngoc Yen Nhi</title>
+<meta name="description" content="A plain-language primer on analytic continual learning: how a frozen backbone and a closed-form ridge readout let a model learn new classes with no replay and no gradients — building up to ACIL, RanPAC, and the memory question my own work asks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="nav">
+    <a class="nav__name" href="../index.html">Nguyen Ngoc Yen Nhi</a>
+    <div class="nav__links">
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#pubs">Publications</a>
+      <a href="../index.html#writing">Writing</a>
+    </div>
+  </nav>
+
+  <header class="article-head">
+    <a class="back" href="../index.html">← Back</a>
+    <h1>Analytic continual learning, from scratch</h1>
+    <p class="dek">
+      How a frozen backbone and a single closed-form equation let a model keep
+      learning new classes with no stored examples and no gradient steps — a
+      primer that builds up to the setting my own work studies.
+    </p>
+    <div class="article-meta">
+      <span><b>Topic</b> &nbsp;Background notes</span>
+      <span><b>Level</b> &nbsp;Assumes basic ML and linear algebra</span>
+      <span><b>Reading</b> &nbsp;About 11 minutes</span>
+    </div>
+  </header>
+
+  <div class="article-body">
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        <li><a href="#forget">The problem: forgetting</a></li>
+        <li><a href="#freeze">The move: freeze, then solve</a></li>
+        <li><a href="#acil">ACIL: learning by recursion</a></li>
+        <li><a href="#ranpac">RanPAC: why width helps</a></li>
+        <li><a href="#memory">What you actually carry</a></li>
+        <li><a href="#next">Where this goes</a></li>
+        <li><a href="#refs">References</a></li>
+      </ol>
+    </nav>
+
+    <article class="prose">
+      <p>
+        These are my background notes on a corner of continual learning I find
+        unusually clean. I wrote them the way I would brief a new labmate: start
+        from the problem, keep the math honest but minimal, and stop at the point
+        where my own research begins. If you read to the end you will understand
+        exactly what question my paper picks up.
+      </p>
+
+      <h2 id="forget">The problem: forgetting</h2>
+      <p>
+        <em class="term">Class-incremental learning</em> trains a model on a
+        sequence of tasks, each bringing new classes, and then tests it on
+        everything seen so far. The hard constraint is that once a task has passed,
+        its data is gone. Train a neural network the ordinary way on this stream
+        and it suffers <em class="term">catastrophic forgetting</em>: the gradient
+        updates for new classes overwrite what made the old ones work.
+      </p>
+      <p>
+        The two familiar defenses both have a cost. <strong>Replay</strong> keeps a
+        buffer of old examples and mixes them back in — but storing data is exactly
+        what many real settings forbid, for privacy or for space. <strong>Regularization</strong>
+        tries to protect important weights from changing, which slows learning of
+        the new. Both fight forgetting while still doing the thing that causes it:
+        updating the whole network by gradient descent.
+      </p>
+
+      <h2 id="freeze">The move: freeze, then solve</h2>
+      <p>
+        Analytic continual learning makes a sharp bet: <strong>don't update the
+        network at all.</strong> Take a backbone <span class="mono">f</span> —
+        a pretrained feature extractor — freeze it, and learn only a linear
+        classifier on top of its features. Forgetting came from the gradient
+        updates, so a method that never takes them cannot forget in that way.
+      </p>
+      <p>
+        That sounds like it gives up too much, until you notice what a frozen
+        backbone buys you. A linear classifier trained with squared error is
+        <em class="term">ridge regression</em>, and ridge regression has a
+        <strong>closed-form solution</strong> — one equation, no iteration. If
+        <span class="mono">X</span> stacks the features of your data and
+        <span class="mono">Y</span> their one-hot labels, the best weights are:
+      </p>
+      <div class="eq">W = (X<sup>T</sup>X + &gamma;I)<sup>&minus;1</sup> X<sup>T</sup>Y <span class="c">&nbsp;&nbsp;// ridge readout, &gamma; = regularization</span></div>
+      <p>
+        The important part is <em>what this equation depends on</em>. It does not
+        need the individual examples — only two summaries: <span class="mono">X<sup>T</sup>X</span>,
+        how the features correlate (a <em class="term">Gram matrix</em>), and
+        <span class="mono">X<sup>T</sup>Y</span>, how features relate to labels.
+        Both are just running sums. When a new task arrives, you add its
+        contribution to each sum and re-solve. No old images, no gradients.
+      </p>
+
+      <figure>
+        <svg viewBox="0 0 680 250" role="img" aria-label="The analytic continual learning pipeline: a frozen backbone feeds a fixed random expansion, which feeds a closed-form ridge readout. Only two summary statistics are stored and updated recursively as tasks arrive; no past data is kept.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" fill="var(--ink-faint)"></path>
+            </marker>
+          </defs>
+          <!-- row of boxes -->
+          <g font-family="'Space Grotesk',sans-serif">
+            <rect x="12" y="70" width="128" height="58" rx="6" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="1"></rect>
+            <text x="76" y="95" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)">frozen</text>
+            <text x="76" y="112" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)">backbone</text>
+
+            <rect x="190" y="70" width="140" height="58" rx="6" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="1"></rect>
+            <text x="260" y="90" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)">random</text>
+            <text x="260" y="107" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)">expansion</text>
+            <text x="260" y="121" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">(fixed, + ReLU)</text>
+
+            <rect x="380" y="70" width="150" height="58" rx="6" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1.5"></rect>
+            <text x="455" y="90" text-anchor="middle" font-size="13" font-weight="500" fill="var(--ink)">ridge readout</text>
+            <text x="455" y="107" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">closed form,</text>
+            <text x="455" y="120" text-anchor="middle" font-size="10.5" fill="var(--ink-soft)">no gradients</text>
+
+            <text x="596" y="104" text-anchor="middle" font-size="13" fill="var(--ink)">class</text>
+
+            <!-- arrows -->
+            <g fill="none" stroke="var(--ink-faint)" stroke-width="1.25">
+              <path d="M140 99 H186" marker-end="url(#ar)"></path>
+              <path d="M330 99 H376" marker-end="url(#ar)"></path>
+              <path d="M530 99 H566" marker-end="url(#ar)"></path>
+            </g>
+
+            <!-- stored state -->
+            <rect x="300" y="178" width="230" height="46" rx="6" fill="none" stroke="var(--accent)" stroke-width="1.25" stroke-dasharray="5 4"></rect>
+            <text x="415" y="199" text-anchor="middle" font-size="12.5" fill="var(--ink)">stored state: the two summaries</text>
+            <text x="415" y="215" text-anchor="middle" font-size="12.5" fill="var(--ink)">(Gram + feature&ndash;label), not data</text>
+            <path d="M455 158 V174" fill="none" stroke="var(--accent)" stroke-width="1.25" marker-end="url(#ar)"></path>
+            <path d="M300 190 C 252 184, 252 218, 298 212" fill="none" stroke="var(--accent)" stroke-width="1.25" stroke-dasharray="5 4" marker-end="url(#ar)"></path>
+            <text x="246" y="205" text-anchor="end" font-size="11" fill="var(--ink-soft)">updated each</text>
+            <text x="246" y="219" text-anchor="end" font-size="11" fill="var(--ink-soft)">task, recursively</text>
+          </g>
+        </svg>
+        <figcaption>
+          The whole pipeline. The backbone and the expansion never change; learning
+          is one closed-form solve. Between tasks the model carries only two running
+          summaries, and updates them recursively — the stream of past data never
+          has to be revisited.
+        </figcaption>
+      </figure>
+
+      <h2 id="acil">ACIL: learning by recursion</h2>
+      <p>
+        <strong>ACIL</strong> <a href="#refs">[1]</a> turned this idea into a full
+        method, and added two things worth knowing.
+      </p>
+      <p>
+        First, a <em class="term">feature expansion</em>: before the readout, it
+        pushes the backbone's features through one extra layer with
+        <em>random, frozen</em> weights and a ReLU. This lifts the features into a
+        higher dimension where the classes are easier to separate with a straight
+        line. Nothing about it is learned — it is a fixed random map — but it makes
+        the cheap linear classifier much stronger.
+      </p>
+      <p>
+        Second, and elegantly, a <em class="term">recursive update</em>. ACIL stores
+        the inverse of the regularized Gram matrix — it calls this the regularized
+        feature autocorrelation matrix, <span class="mono">R</span> — and when a
+        new task arrives it updates <span class="mono">R</span> and the weights with
+        a rank-update identity, without ever re-inverting from scratch:
+      </p>
+      <div class="eq">R<sub>k</sub> = R<sub>k&minus;1</sub> &minus; R<sub>k&minus;1</sub>X<sub>k</sub><sup>T</sup>(I + X<sub>k</sub>R<sub>k&minus;1</sub>X<sub>k</sub><sup>T</sup>)<sup>&minus;1</sup>X<sub>k</sub>R<sub>k&minus;1</sub> <span class="c">&nbsp;// add task k, drop nothing</span></div>
+      <p>
+        The payoff is a property ACIL calls <em class="term">absolute memorization</em>:
+        learning the tasks one at a time, this way, gives <strong>exactly</strong>
+        the same classifier as training on all of them together. Incremental
+        learning with no approximation and no forgetting — because the recursion is
+        algebraically identical to the joint solution. And since only
+        <span class="mono">R</span> and the weights are kept, never the past images,
+        the method is private by construction.
+      </p>
+      <blockquote>
+        This is the part I find beautiful: forgetting is not fought here, it is
+        defined away. The update <em>is</em> the joint answer.
+      </blockquote>
+
+      <h2 id="ranpac">RanPAC: why width helps</h2>
+      <p>
+        <strong>RanPAC</strong> <a href="#refs">[2]</a> brought the same recipe to
+        modern pretrained models and sharpened the role of the expansion. On top of
+        a frozen ViT, it inserts a <em class="term">random projection</em> into a
+        much wider space, followed by a nonlinearity, and then builds class
+        prototypes with second-order statistics — the same Gram-matrix machinery.
+      </p>
+      <p>
+        Why does projecting into a <em>wider</em> random space help, when it adds no
+        new information? Because width makes classes more linearly separable: in a
+        high enough dimension, a simple linear readout can carve boundaries that
+        were tangled in the original features. RanPAC's gains are large — double-digit
+        error reductions across benchmarks, with no replay — and they come mostly
+        from this expansion plus a decorrelation step that removes the bias
+        pretrained features carry. The lesson that matters here: <strong>more width,
+        better accuracy.</strong>
+      </p>
+
+      <h2 id="memory">What you actually carry</h2>
+      <p>
+        Now the tension that pulls me in. The expansion wants to be wide. But the
+        thing the learner must carry between tasks — the Gram matrix of those
+        expanded features — is a square matrix. Double the width and you
+        <strong>quadruple</strong> its size. At ten thousand coordinates it is
+        hundreds of megabytes, all of it just the record of how coordinates
+        interact.
+      </p>
+      <p>
+        So "more width, better accuracy" collides with a budget. If the state you
+        carry has to stay small — imagine many separate task streams sharing one
+        frozen backbone, each keeping its own readout — you cannot simply make the
+        expansion as wide as you like. Something has to give: fewer coordinates, or
+        a cheaper way to store how they interact.
+      </p>
+
+      <h2 id="next">Where this goes</h2>
+      <p>
+        That collision is exactly the question my current work takes up: given a
+        fixed memory budget, should you spend it on more width, or on storing the
+        interactions among coordinates more faithfully? The method and the answer
+        are in a paper under review, so I am not posting them here yet — but the
+        next note frames the question itself.
+      </p>
+      <p>
+        If the setup in these notes now feels natural, that is the point.
+      </p>
+      <p style="margin-top:1.8em"><a href="width-or-interaction-fidelity.html">Read: Width or Interaction Fidelity? →</a></p>
+
+      <h2 id="refs">References</h2>
+      <ol class="refs">
+        <li>H. Zhuang et al. <a href="https://arxiv.org/abs/2205.14922">ACIL: Analytic Class-Incremental Learning with Absolute Memorization and Privacy Protection</a>. NeurIPS 2022.</li>
+        <li>M. D. McDonnell et al. <a href="https://arxiv.org/abs/2307.02251">RanPAC: Random Projections and Pre-trained Models for Continual Learning</a>. NeurIPS 2023.</li>
+      </ol>
+      <p style="color:var(--ink-faint);font-size:0.9rem">
+        These are personal study notes; any errors are mine. I have simplified the
+        equations for readability — see the papers for the exact statements.
+      </p>
+
+      <p style="margin-top:2em"><a href="../index.html">← Back to all work</a></p>
+    </article>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <a href="https://github.com/NhiNguyen34">GitHub</a>
+      <a href="../index.html">Home</a>
+    </div>
+    <p class="footer-note">Nguyen Ngoc Yen Nhi. Study notes, written to be read.</p>
+  </footer>
+
+</div>
+</body>
+</html>

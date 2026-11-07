@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Width or Interaction Fidelity? — Nguyen Ngoc Yen Nhi</title>
+<meta name="description" content="Notes on the question behind my current work: how an analytic continual learner should split a fixed memory budget between width and interaction fidelity. The paper is under review, so this frames the problem, not the method.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Space+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="nav">
+    <a class="nav__name" href="../index.html">Nguyen Ngoc Yen Nhi</a>
+    <div class="nav__links">
+      <a href="../index.html#about">About</a>
+      <a href="../index.html#pubs">Publications</a>
+      <a href="../index.html#writing">Writing</a>
+    </div>
+  </nav>
+
+  <header class="article-head">
+    <a class="back" href="../index.html">← Back</a>
+    <h1>Width or Interaction Fidelity?</h1>
+    <p class="dek">
+      The question my current work asks: how should an analytic continual learner
+      spend a fixed memory budget? The paper is under review, so these are notes on
+      the problem — not the method or the results.
+    </p>
+    <div class="article-meta">
+      <span><b>Status</b> &nbsp;Under review, ICLR 2027</span>
+      <span><b>This note</b> &nbsp;Problem framing only</span>
+      <span><b>Reading</b> &nbsp;About 4 minutes</span>
+    </div>
+  </header>
+
+  <div class="article-body">
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        <li><a href="#recap">Where the memory goes</a></li>
+        <li><a href="#question">The choice</a></li>
+        <li><a href="#hard">Why it is not obvious</a></li>
+        <li><a href="#status">On the paper</a></li>
+      </ol>
+    </nav>
+
+    <article class="prose">
+      <p>
+        If you have read the <a href="analytic-continual-learning.html">primer</a>,
+        you already have the setup. This note only sharpens the question the paper
+        asks. I am keeping the method and the findings out of it while the work is
+        under double-blind review; I will expand this into a full write-up once it
+        is public.
+      </p>
+
+      <h2 id="recap">Where the memory goes</h2>
+      <p>
+        Recall the one tension from the primer. An analytic continual learner
+        carries a small state between tasks, and a random expansion into more
+        coordinates — more <em class="term">width</em> — raises accuracy. But the
+        part of that state which records how coordinates <em>interact</em> grows
+        quadratically with width. When the state you carry has to stay within a
+        fixed budget, that quadratic term is what limits how wide you can go.
+      </p>
+
+      <h2 id="question">The choice</h2>
+      <p>
+        So a fixed budget forces a choice, and it is the choice in the title:
+      </p>
+      <blockquote>
+        Keep <em>exact</em> interactions among <em>fewer</em> coordinates — or keep
+        <em>more</em> coordinates and store how they interact only
+        <em>approximately</em>?
+      </blockquote>
+
+      <figure>
+        <svg viewBox="0 0 680 230" role="img" aria-label="Two ways to spend the same fixed memory budget: fewer coordinates with exact interactions, or more coordinates with approximate interactions. Which is better, and when, is the open question.">
+          <defs>
+            <pattern id="hatch" width="7" height="7" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+              <rect width="7" height="7" fill="var(--accent-wash)"></rect>
+              <line x1="0" y1="0" x2="0" y2="7" stroke="var(--accent)" stroke-width="1.4"></line>
+            </pattern>
+          </defs>
+          <text x="170" y="24" font-family="'Space Grotesk',sans-serif" font-size="13" fill="var(--ink-soft)">same memory budget</text>
+          <line x1="170" y1="34" x2="640" y2="34" stroke="var(--ink-faint)" stroke-width="1"></line>
+          <line x1="170" y1="30" x2="170" y2="38" stroke="var(--ink-faint)" stroke-width="1"></line>
+          <line x1="640" y1="30" x2="640" y2="38" stroke="var(--ink-faint)" stroke-width="1"></line>
+
+          <text x="0" y="78" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="500" fill="var(--ink)">Option A</text>
+          <rect x="170" y="62" width="100" height="40" rx="3" fill="var(--accent)"></rect>
+          <rect x="270" y="62" width="370" height="40" rx="3" fill="var(--accent)" opacity="0.55"></rect>
+          <line x1="270" y1="62" x2="270" y2="102" stroke="var(--paper)" stroke-width="2"></line>
+          <text x="220" y="87" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12" fill="var(--paper)">fewer coords</text>
+          <text x="455" y="87" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12.5" fill="var(--ink)">exact interactions</text>
+
+          <text x="0" y="158" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="500" fill="var(--ink)">Option B</text>
+          <rect x="170" y="142" width="250" height="40" rx="3" fill="var(--accent)"></rect>
+          <rect x="420" y="142" width="220" height="40" rx="3" fill="url(#hatch)" stroke="var(--accent)" stroke-width="1"></rect>
+          <text x="295" y="167" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12.5" fill="var(--paper)">more coordinates</text>
+          <text x="530" y="167" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12" fill="var(--ink)">approximate</text>
+
+          <text x="340" y="214" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="500" fill="var(--accent-deep)">Which wins, and when?</text>
+        </svg>
+        <figcaption>
+          Two ways to spend the same budget. Both are reasonable; which one is
+          better, and under what conditions, is the question the paper sets out to
+          answer.
+        </figcaption>
+      </figure>
+
+      <h2 id="hard">Why it is not obvious</h2>
+      <p>
+        You might guess width always wins, or that fidelity always wins. Neither is
+        safe. More coordinates help only if a straight line can still use them;
+        compressing interactions too hard can throw away exactly what separated two
+        classes. And earlier comparisons in the literature mixed this trade-off in
+        with differences in training recipe and state size, so they could not
+        isolate it. Answering it cleanly means holding everything else fixed and
+        changing only width against interaction fidelity — which is what the paper
+        is built to do.
+      </p>
+
+      <h2 id="status">On the paper</h2>
+      <p>
+        The method, the experiments, and the answer — including where the trade-off
+        does <em>not</em> pay, which I think is the most useful part — are in the
+        submission, currently under double-blind review at ICLR 2027. Out of respect
+        for that process I am not posting the architecture or the results here yet.
+      </p>
+      <p>
+        When it is public, this note will grow into the full walkthrough, the way
+        the <a href="analytic-continual-learning.html">primer</a> is written. For
+        now, the question above is the part I most wanted to share.
+      </p>
+
+      <p style="margin-top:2em"><a href="../index.html">← Back to all work</a></p>
+    </article>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <a href="https://github.com/NhiNguyen34">GitHub</a>
+      <a href="../index.html">Home</a>
+    </div>
+    <p class="footer-note">Nguyen Ngoc Yen Nhi. A reading companion, not the paper itself.</p>
+  </footer>
+
+</div>
+</body>
+</html>
