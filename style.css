@@ -3,7 +3,7 @@
    Type: Newsreader (long-form reading) + Space Grotesk (technical labels) + IBM Plex Mono (math/code). */
 
 :root {
-  --paper: #f3f4f0;
+  --paper: #ffffff;        /* plain white */
   --paper-raised: #fbfbf9;
   --ink: #1a1d26;
   --ink-soft: #565b68;
@@ -18,34 +18,7 @@
   --radius: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #14161c;
-    --paper-raised: #1b1e26;
-    --ink: #ecede9;
-    --ink-soft: #a6abb6;
-    --ink-faint: #767b86;
-    --line: #2d313b;
-    --line-soft: #23262e;
-    --accent: #58d6c6;
-    --accent-deep: #8fe6da;
-    --accent-wash: rgba(88, 214, 198, 0.14);
-    --focus: #58d6c6;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #14161c;
-  --paper-raised: #1b1e26;
-  --ink: #ecede9;
-  --ink-soft: #a6abb6;
-  --ink-faint: #767b86;
-  --line: #2d313b;
-  --line-soft: #23262e;
-  --accent: #58d6c6;
-  --accent-deep: #8fe6da;
-  --accent-wash: rgba(88, 214, 198, 0.14);
-  --focus: #58d6c6;
-}
+/* Single light theme: a plain white, academic look. Dark mode intentionally removed. */
 
 * { box-sizing: border-box; }
 
@@ -80,7 +53,6 @@ h1, h2, h3 {
 }
 a { color: var(--accent-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { color: var(--ink); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) a { color: var(--accent-deep); } }
 
 .ui { font-family: "Space Grotesk", system-ui, sans-serif; }
 .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; }
@@ -240,7 +212,7 @@ section { padding: 56px 0; border-top: 1px solid var(--line-soft); }
 .prose h2 { font-size: 1.85rem; margin: 2.4em 0 0.6em; }
 .prose h2:first-child { margin-top: 0; }
 .prose strong { font-weight: 600; color: var(--ink); }
-.prose em.term { font-style: normal; font-weight: 600; color: var(--accent-deep); }
+.prose em.term { font-style: normal; font-weight: 600; color: var(--ink); }
 .prose blockquote {
   margin: 1.6em 0; padding: 4px 0 4px 22px;
   border-left: 2px solid var(--accent);
@@ -391,3 +363,49 @@ footer { border-top: 1px solid var(--line); padding: 44px 0 64px; margin-top: 24
 .plain { list-style: none; margin: 0; padding: 0; }
 .plain li { padding: 9px 0; border-bottom: 1px solid var(--line-soft); line-height: 1.5; }
 .plain .year { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; color: var(--ink-faint); margin-left: 6px; }
+
+
+/* ============================================================== */
+/* Reading-note additions: margin notes, equations, paper figures  */
+/* (these used to live in the note page's inline <style>)          */
+/* ============================================================== */
+
+/* display equations: centred monospace, the // comment on a faint line below */
+.eq {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.93rem; line-height: 1.6; text-align: center;
+  margin: 1.8em 0; color: var(--ink); overflow-x: auto;
+}
+.eq sup, .eq sub { font-size: 0.74em; }
+.eq .c { display: block; margin-top: 0.35em; font-size: 0.82em; color: var(--ink-faint); text-align: center; }
+
+/* margin notes: a quiet aside with a thin rule, not a coloured card */
+.mynote {
+  margin: 1.5em 0; padding: 0.5em 0 0.5em 0.95em;
+  border-left: 2px solid var(--line); background: none;
+  font-size: 0.92rem; line-height: 1.55; color: var(--ink-soft);
+}
+.mynote__label {
+  display: block; font-family: "IBM Plex Mono", monospace;
+  font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 0.35em;
+}
+.mynote p { margin: 0.25em 0; }
+.mynote .shorthand { font-family: "IBM Plex Mono", monospace; font-size: 0.88em; color: var(--ink-soft); }
+
+/* references list */
+.refs { font-size: 0.96rem; color: var(--ink-soft); padding-left: 1.2em; }
+.refs li { margin: 0.4em 0; }
+
+/* paper figures: a thin frame on white */
+figure img.paperfig {
+  display: block; margin: 0 auto; width: 100%; height: auto;
+  background: #fff; padding: 6px; box-sizing: border-box;
+  border: 1px solid var(--line); border-radius: 4px;
+}
+figure .fignote {
+  display: block; margin-top: 0.5em;
+  font-family: "Space Grotesk", sans-serif; font-size: 0.8rem;
+  color: var(--ink-faint); font-style: italic;
+}
+figcaption .src { color: var(--ink-faint); font-style: italic; }
